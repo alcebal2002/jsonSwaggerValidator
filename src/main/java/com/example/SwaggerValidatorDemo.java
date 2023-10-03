@@ -18,13 +18,17 @@ public class SwaggerValidatorDemo {
 
                 String openAPISpecUrl = "petstore-openapi.yml";
                 String requestPath = "/pet/findByStatus";
+                int responseStatus = 200;
                 String responseBody = "[{\"name\":\"Pet1\", \"photoUrls\":[\"url1\"]}]";
                 String method = "GET";
+                String contentType = "application/json";
 
-                validateRequestResponse(openAPISpecUrl, method, requestPath, responseBody);
+                validateRequestResponse(openAPISpecUrl, method, contentType, requestPath, responseStatus, responseBody);
         }
 
-        public static void validateRequestResponse(String openAPISpecUrl, String stringMethod, String requestPath,
+        public static void validateRequestResponse(String openAPISpecUrl, String stringMethod, String contentType,
+                        String requestPath,
+                        int responseStatus,
                         String responseBody) {
 
                 Method method = getRequestMethod(stringMethod);
@@ -33,15 +37,15 @@ public class SwaggerValidatorDemo {
                                 .createForSpecificationUrl(openAPISpecUrl)
                                 .build();
 
-                // final Request request = SimpleRequest.Builder(method, requestPath, false)
                 final SimpleRequest.Builder requestBuilder = new SimpleRequest.Builder(method, requestPath, false);
                 final Request request = requestBuilder.build();
 
-                final Response response = SimpleResponse.Builder
-                                .ok()
-                                .withContentType("application/json")
-                                .withBody(responseBody)
-                                .build();
+                final SimpleResponse.Builder responseBuilder = new SimpleResponse.Builder(responseStatus);
+                if (contentType != null)
+                        responseBuilder.withContentType(contentType);
+                if (responseBody != null)
+                        responseBuilder.withBody(responseBody, null);
+                final Response response = responseBuilder.build();
 
                 System.out.println(request.getMethod() + " - " + request.getPath());
                 System.out.print("> Request : ");
