@@ -14,36 +14,38 @@ import java.io.IOException;
 
 public class SwaggerValidatorDemo {
 
-        private static final String OPENAPI_SPEC_URL = "petstore-openapi.yml";
-
         public static void main(String[] args) throws IOException, ProcessingException {
+
+                String openAPISpecUrl = "petstore-openapi.yml";
+                String requestPath = "/pet/findByStatus";
+                String responseBody = "[{\"name\":\"Pet1\", \"photoUrls\":[\"url1\"]}]";
+                Method method = Method.GET;
+
+                validateRequestResponse(openAPISpecUrl, method, requestPath, responseBody);
+        }
+
+        public static void validateRequestResponse(String openAPISpecUrl, Method method, String requestPath,
+                        String responseBody) {
+
                 OpenApiInteractionValidator validator = OpenApiInteractionValidator
-                                .createForSpecificationUrl(OPENAPI_SPEC_URL)
+                                .createForSpecificationUrl(openAPISpecUrl)
                                 .build();
 
                 final Request request = SimpleRequest.Builder
-                                .get("/pet/findByStatus")
+                                .get(requestPath)
                                 .build();
 
                 final Response response = SimpleResponse.Builder
                                 .ok()
                                 .withContentType("application/json")
-                                .withBody("[{\"name\":\"Pet1\", \"photoUrls\":[\"url1\"]}]")
+                                .withBody(responseBody)
                                 .build();
-
-                validateRequestResponse(validator, request, response);
-        }
-
-        public static void validateRequestResponse(OpenApiInteractionValidator validator, Request request,
-                        Response response) {
-
-                // ValidationReport validationReport = validator.validate(request, response);
 
                 System.out.println(request.getMethod() + " - " + request.getPath());
                 System.out.print("> Request : ");
                 printValidationReport(validator.validateRequest(request));
                 System.out.print("> Response: ");
-                printValidationReport(validator.validateResponse("/pet/findByStatus", Method.GET, response));
+                printValidationReport(validator.validateResponse(requestPath, method, response));
         }
 
         public static String printValidationReport(ValidationReport report) {
