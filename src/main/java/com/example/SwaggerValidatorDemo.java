@@ -3,6 +3,7 @@ package com.example;
 import com.atlassian.oai.validator.OpenApiInteractionValidator;
 import com.atlassian.oai.validator.model.SimpleRequest;
 import com.atlassian.oai.validator.model.SimpleResponse;
+import com.atlassian.oai.validator.model.Request.Method;
 import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.Response;
 import com.atlassian.oai.validator.report.JsonValidationReportFormat;
@@ -10,8 +11,6 @@ import com.atlassian.oai.validator.report.ValidationReport;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class SwaggerValidatorDemo {
 
@@ -38,20 +37,23 @@ public class SwaggerValidatorDemo {
         public static void validateRequestResponse(OpenApiInteractionValidator validator, Request request,
                         Response response) {
 
-                ValidationReport validationReport = validator.validate(request, response);
+                // ValidationReport validationReport = validator.validate(request, response);
 
                 System.out.println(request.getMethod() + " - " + request.getPath());
-                System.out.println("> request : " + request.toString());
-                System.out.println("> response: " + response.toString());
-                printReportKeys(validationReport);
+                System.out.print("> Request : ");
+                printValidationReport(validator.validateRequest(request));
+                System.out.print("> Response: ");
+                printValidationReport(validator.validateResponse("/pet/findByStatus", Method.GET, response));
         }
 
-        public static void printReportKeys(ValidationReport report) {
+        public static String printValidationReport(ValidationReport report) {
                 if (report.hasErrors()) {
-                        System.out.println("Validation Request / Response with ERRORs");
+                        System.out.println("ERROR");
                         System.out.println(JsonValidationReportFormat.getInstance().apply(report));
+                        return "ERROR";
                 } else {
-                        System.out.println("Validation Request / Response SUCCESSFUL");
+                        System.out.println("SUCCESS");
+                        return "SUCCESS";
                 }
         }
 
