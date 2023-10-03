@@ -5,6 +5,7 @@ import com.atlassian.oai.validator.model.SimpleRequest;
 import com.atlassian.oai.validator.model.SimpleResponse;
 import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.Response;
+import com.atlassian.oai.validator.report.JsonValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 
@@ -16,11 +17,11 @@ public class SwaggerValidatorDemo {
 
         private static final String OPENAPI_SPEC_URL = "petstore-openapi.yml";
 
-        private static OpenApiInteractionValidator validator = OpenApiInteractionValidator
-                        .createForSpecificationUrl(OPENAPI_SPEC_URL)
-                        .build();
-
         public static void main(String[] args) throws IOException, ProcessingException {
+                OpenApiInteractionValidator validator = OpenApiInteractionValidator
+                                .createForSpecificationUrl(OPENAPI_SPEC_URL)
+                                .build();
+
                 final Request request = SimpleRequest.Builder
                                 .get("/pet/findByStatus")
                                 .build();
@@ -28,38 +29,30 @@ public class SwaggerValidatorDemo {
                 final Response response = SimpleResponse.Builder
                                 .ok()
                                 .withContentType("application/json")
-                                .withBody("[{\"name\":\"Pet1\", \"photoUrls\":\"url\"}]")
+                                .withBody("[{\"name\":\"Pet1\", \"photoUrls\":[\"url1\"]}]")
                                 .build();
 
-                validateRequestResponse(request, response);
+                validateRequestResponse(validator, request, response);
         }
 
-        public static void validateRequestResponse(Request request, Response response) {
-                ValidationReport requestReport = null;
-                ValidationReport responseReport = null;
+        public static void validateRequestResponse(OpenApiInteractionValidator validator, Request request,
+                        Response response) {
 
-                requestReport = validator.validate(request, response);
-
-                if (request != null)
-                        requestReport = validator.validateRequest(request);
-                if (response != null)
-                        responseReport = validator.validateResponse(request.getPath(),
-                                        request.getMethod(), response);
+                ValidationReport validationReport = validator.validate(request, response);
 
                 System.out.println(request.getMethod() + " - " + request.getPath());
-                System.out.println("> request:");
-                printReportKeys(requestReport);
-                System.out.println("> response:");
-                printReportKeys(responseReport);
+                System.out.println("> request : " + request.toString());
+                System.out.println("> response: " + response.toString());
+                printReportKeys(validationReport);
         }
 
         public static void printReportKeys(ValidationReport report) {
-                final List<String> reportKeys = report.getMessages().stream()
-                                .map(ValidationReport.Message::getKey)
-                                .collect(Collectors.toList());
-                reportKeys.forEach(key -> {
-                        System.out.println(key);
-                });
+                if (report.hasErrors()) {
+                        System.out.println("Validation Request / Response with ERRORs");
+                        System.out.println(JsonValidationReportFormat.getInstance().apply(report));
+                } else {
+                        System.out.println("Validation Request / Response SUCCESSFUL");
+                }
         }
 
 }
