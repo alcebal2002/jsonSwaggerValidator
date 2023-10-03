@@ -8,13 +8,11 @@ import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.Response;
 import com.atlassian.oai.validator.report.JsonValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-
 import java.io.IOException;
 
 public class SwaggerValidatorDemo {
 
-        public static void main(String[] args) throws IOException, ProcessingException {
+        public static void main(String[] args) throws IOException {
 
                 String openAPISpecUrl = "petstore-openapi.yml";
                 String requestPath = "/pet/findByStatus";
@@ -86,5 +84,4 @@ public class SwaggerValidatorDemo {
                         return "SUCCESS";
                 }
         }
-
 }
