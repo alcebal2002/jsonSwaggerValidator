@@ -19,21 +19,23 @@ public class SwaggerValidatorDemo {
                 String openAPISpecUrl = "petstore-openapi.yml";
                 String requestPath = "/pet/findByStatus";
                 String responseBody = "[{\"name\":\"Pet1\", \"photoUrls\":[\"url1\"]}]";
-                Method method = Method.GET;
+                String method = "GET";
 
                 validateRequestResponse(openAPISpecUrl, method, requestPath, responseBody);
         }
 
-        public static void validateRequestResponse(String openAPISpecUrl, Method method, String requestPath,
+        public static void validateRequestResponse(String openAPISpecUrl, String stringMethod, String requestPath,
                         String responseBody) {
+
+                Method method = getRequestMethod(stringMethod);
 
                 OpenApiInteractionValidator validator = OpenApiInteractionValidator
                                 .createForSpecificationUrl(openAPISpecUrl)
                                 .build();
 
-                final Request request = SimpleRequest.Builder
-                                .get(requestPath)
-                                .build();
+                // final Request request = SimpleRequest.Builder(method, requestPath, false)
+                final SimpleRequest.Builder requestBuilder = new SimpleRequest.Builder(method, requestPath, false);
+                final Request request = requestBuilder.build();
 
                 final Response response = SimpleResponse.Builder
                                 .ok()
@@ -46,6 +48,28 @@ public class SwaggerValidatorDemo {
                 printValidationReport(validator.validateRequest(request));
                 System.out.print("> Response: ");
                 printValidationReport(validator.validateResponse(requestPath, method, response));
+        }
+
+        public static Method getRequestMethod(String method) {
+                switch (method) {
+                        case "GET":
+                                return Method.GET;
+                        case "POST":
+                                return Method.POST;
+                        case "PATCH":
+                                return Method.PATCH;
+                        case "DELETE":
+                                return Method.DELETE;
+                        case "HEAD":
+                                return Method.HEAD;
+                        case "OPTIONS":
+                                return Method.OPTIONS;
+                        case "TRACE":
+                                return Method.TRACE;
+                        default:
+                                return Method.GET;
+                }
+
         }
 
         public static String printValidationReport(ValidationReport report) {
