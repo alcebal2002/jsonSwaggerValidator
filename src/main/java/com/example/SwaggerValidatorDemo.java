@@ -16,16 +16,22 @@ public class SwaggerValidatorDemo {
 
                 String openAPISpecUrl = "petstore-openapi.yml";
                 String requestPath = "/pet/findByStatus";
+                String requestBody = null;
                 int responseStatus = 200;
                 String responseBody = "[{\"name\":\"Pet1\", \"photoUrls\":[\"url1\"]}]";
                 String method = "GET";
                 String contentType = "application/json";
 
-                validateRequestResponse(openAPISpecUrl, method, contentType, requestPath, responseStatus, responseBody);
+                validateRequestResponse(openAPISpecUrl, method, contentType, requestPath, requestBody, responseStatus,
+                                responseBody);
         }
 
-        public static void validateRequestResponse(String openAPISpecUrl, String stringMethod, String contentType,
+        public static void validateRequestResponse(
+                        String openAPISpecUrl,
+                        String stringMethod,
+                        String contentType,
                         String requestPath,
+                        String requestBody,
                         int responseStatus,
                         String responseBody) {
 
@@ -36,6 +42,10 @@ public class SwaggerValidatorDemo {
                                 .build();
 
                 final SimpleRequest.Builder requestBuilder = new SimpleRequest.Builder(method, requestPath, false);
+                if (contentType != null)
+                        requestBuilder.withContentType(contentType);
+                if (requestBody != null)
+                        requestBuilder.withBody(responseBody, null);
                 final Request request = requestBuilder.build();
 
                 final SimpleResponse.Builder responseBuilder = new SimpleResponse.Builder(responseStatus);
@@ -58,6 +68,8 @@ public class SwaggerValidatorDemo {
                                 return Method.GET;
                         case "POST":
                                 return Method.POST;
+                        case "PUT":
+                                return Method.PUT;
                         case "PATCH":
                                 return Method.PATCH;
                         case "DELETE":
