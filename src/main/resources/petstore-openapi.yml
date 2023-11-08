@@ -124,7 +124,7 @@ paths:
         - name: status
           in: query
           description: Status values that need to be considered for filter
-          required: false
+          required: true
           explode: true
           schema:
             type: string

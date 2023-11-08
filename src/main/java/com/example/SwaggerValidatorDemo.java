@@ -9,6 +9,10 @@ import com.atlassian.oai.validator.model.Response;
 import com.atlassian.oai.validator.report.JsonValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SwaggerValidatorDemo {
 
@@ -16,13 +20,17 @@ public class SwaggerValidatorDemo {
 
                 String openAPISpecUrl = "petstore-openapi.yml";
                 String requestPath = "/pet/findByStatus";
+                Map<String, List<String>> requestQueryParams = new HashMap<String, List<String>>();
+                List<String> statusList = Arrays.asList("available");
+                requestQueryParams.put("status", statusList);
                 String requestBody = null;
                 int responseStatus = 200;
                 String responseBody = "[{\"name\":\"Pet1\", \"photoUrls\":[\"url1\"]}]";
                 String method = "GET";
                 String contentType = "application/json";
 
-                validateRequestResponse(openAPISpecUrl, method, contentType, requestPath, requestBody, responseStatus,
+                validateRequestResponse(openAPISpecUrl, method, contentType, requestPath, requestQueryParams,
+                                requestBody, responseStatus,
                                 responseBody);
         }
 
@@ -31,6 +39,7 @@ public class SwaggerValidatorDemo {
                         String stringMethod,
                         String contentType,
                         String requestPath,
+                        Map<String, List<String>> requestQueryParams,
                         String requestBody,
                         int responseStatus,
                         String responseBody) {
@@ -46,6 +55,12 @@ public class SwaggerValidatorDemo {
                         requestBuilder.withContentType(contentType);
                 if (requestBody != null)
                         requestBuilder.withBody(responseBody, null);
+
+                for (Map.Entry<String, List<String>> entry : requestQueryParams.entrySet()) {
+                        String key = entry.getKey();
+                        requestBuilder.withQueryParam(key, entry.getValue());
+                }
+
                 final Request request = requestBuilder.build();
 
                 final SimpleResponse.Builder responseBuilder = new SimpleResponse.Builder(responseStatus);
